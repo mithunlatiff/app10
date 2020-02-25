@@ -1,0 +1,114 @@
+apiVersion: v1
+items:
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: nodeapp
+    name: nodeapp
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: nodeapp:latest
+    postCommit: {}
+    resources: {}
+    source:
+      git:
+        uri: https://github.com/mithunlatiff/app4.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: nodejs:10
+          namespace: openshift
+      type: Source
+    triggers:
+    - github:
+        secret: u89KZk8J-XgPoOgbCW1Y
+      type: GitHub
+    - generic:
+        secret: -OpPBvPF-cE4Z_ZmHuXC
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: nodeapp
+    name: nodeapp
+  spec:
+    replicas: 1
+    selector:
+      app: nodeapp
+      deploymentconfig: nodeapp
+    strategy:
+      resources: {}
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: nodeapp
+          deploymentconfig: nodeapp
+      spec:
+        containers:
+        - image: nodeapp:latest
+          name: nodeapp
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - nodeapp
+        from:
+          kind: ImageStreamTag
+          name: nodeapp:latest
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: nodeapp
+    name: nodeapp
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      app: nodeapp
+      deploymentconfig: nodeapp
+  status:
+    loadBalancer: {}
+kind: List
+metadata: {}
